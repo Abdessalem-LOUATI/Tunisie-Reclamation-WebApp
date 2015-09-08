@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+ <session-factory name="">
+  <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+  <property name="hibernate.connection.password">root</property>
+  <property name="hibernate.connection.url">jdbc:sqlserver://localhost:1433;databaseName=reclamation</property>
+  <property name="hibernate.connection.username">sa</property>
+  <property name="hibernate.default_schema">dbo</property>
+  <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+  <mapping class="com.sifast.model.Admin"/>
+  <mapping class="com.sifast.model.Agent"/>
+  <mapping class="com.sifast.model.Client"/>
+  <mapping class="com.sifast.model.Reclamation"/>
+  <mapping class="com.sifast.model.Institution"/>
+  <mapping class="com.sifast.model.TypeReclamation"/>
+ </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,32 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" template="/vue/accueil.xhtml">
+	
+	<ui:define name="title">Statistique</ui:define>
+	<ui:define name="content">
+		<h:form id="formStatistique">
+			<!-- Affichage des statistiques pour l'administrateur -->
+			<p:panel header="Affichage des statistiques" style="margin-bottom:10px;" rendered="#{not empty statMB.admin}">
+				<h:panelGrid columns="2" cellpadding="5">
+					<p:outputLabel for="choixStatAdmin" value="Afficher les statistiques par: " />
+					<p:selectOneMenu id="choixStatAdmin" value="#{statMB.choixStatSelected}" style="width:150px" required="true">
+						<p:ajax listener="#{statMB.onChoixStatChange}" update=":#{p:component('choixInstit')}" />
+						<f:selectItems value="#{statMB.listChoix}" />
+						<p:ajax process="@this" partialSubmit="true" update=":#{p:component('statChart')}" />
+					</p:selectOneMenu>
+
+					<!-- 	 -->
+					<h:panelGroup id="choixInstit">
+						<p:selectOneMenu id="choixInstitution" rendered="#{not empty statMB.listInstitution}" value="#{statMB.institutionSelected}" style="width:150px">
+							<p:ajax listener="#{statMB.onChoixInstitutionChange}" update=":#{p:component('statChart')}" />
+							<f:selectItem itemLabel="Choisir une institution" itemValue="" noSelectionOption="false"  />
+							<f:selectItems value="#{statMB.listInstitution}" var="listInstitution" itemValue="#{listInstitution.nomInstit}" itemLabel="#{listInstitution.nomInstit}" />
+						</p:selectOneMenu>
+					</h:panelGroup>
+				</h:panelGrid>
+				<p:separator />
+			</p:panel>
+			
+			<p:chart id="statChart" type="pie" model="#{statMB.pieModel}" style="width:550px;height:410px;font-size: 150%;" />
+		</h:form>
+	</ui:define>
+</ui:composition>

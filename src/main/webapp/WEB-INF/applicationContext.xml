@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx 
+    http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<!-- <context:component-scan base-package="model" /> -->
+	
+	<context:component-scan base-package="com.sifast">
+      <context:include-filter type="aspectj" expression="com.sifast.*" />
+	</context:component-scan>
+	
+	<context:annotation-config/>
+	<context:spring-configured/>
+
+	<!-- Beans Declaration -->
+	 <bean id="Admin" class="com.sifast.model.Admin" />
+	 <bean id="Agent" class="com.sifast.model.Agent" />
+	 <bean id="Client" class="com.sifast.model.Client" />
+	 <bean id="Institution" class="com.sifast.model.Institution" />
+	 <bean id="Reclamation" class="com.sifast.model.Reclamation" />
+	 <bean id="TypeReclamation" class="com.sifast.model.TypeReclamation" />
+	
+	<!-- Exercice Service Declaration - | l'id="ExerciceService" c'est la valeur 
+		qui existe dans ExerciceManagedBean à l'annotation @ManagedProperty(value 
+		= "#{ExerciceService}") -->
+	<!-- <bean id="ExerciceService" class="model.service.ExerciceService">
+		<property name="exerciceDAO" ref="ExerciceDAO" />
+	</bean> -->
+	
+	<!-- Exercice DAO Declaration -->
+	<!-- <bean id="ExerciceDAO" class="model.dao.ExerciceDAO">
+		<property name="sessionFactory" ref="SessionFactory" />
+	</bean> -->
+
+	<!-- Data Source Declaration - Pour faire la liaison entre le couche DAO 
+		et la base de données -->
+	<bean id="DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+		<property name="jdbcUrl"
+			value="jdbc:sqlserver://127.0.0.1:1433;databaseName=reclamation" />
+		<property name="user" value="sa" />
+		<property name="password" value="root" />
+	</bean>
+
+	<!-- Session Factory Declaration -->
+	<bean id="SessionFactory"
+		class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="DataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.sifast.model.Admin</value>
+				<value>com.sifast.model.Agent</value>
+				<value>com.sifast.model.Client</value>
+				<value>com.sifast.model.Institution</value>
+				<value>com.sifast.model.Reclamation</value>
+				<value>com.sifast.model.TypeReclamation</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Enable the configuration of transactional behavior based on annotations -->
+	<tx:annotation-driven transaction-manager="txManager" />
+
+	<!-- Transaction Manager is defined -->
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="SessionFactory" />
+	</bean>
+	
+</beans>

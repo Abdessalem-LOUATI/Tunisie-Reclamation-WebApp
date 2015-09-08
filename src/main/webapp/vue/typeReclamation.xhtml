@@ -1,0 +1,115 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" template="/vue/accueil.xhtml">
+
+	<ui:define name="title">Type de réclamation</ui:define>
+	<ui:define name="content">
+		<h:form id="formTypeReclamation">
+			<p:accordionPanel multiple="true">
+				<!-- Début liste des types des réclamations -->
+				<p:tab title="Liste des types des réclamations">
+					<p:dataTable id="listTypeReclamation" var="typeReclamation" value="#{typeReclamMB.listTypeReclamation}" rows="10" paginator="true"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="5,10,15" widgetVar="typeReclamTable" filteredValue="#{typeReclamMB.listTypeReclamationFiltred}"
+						emptyMessage="Aucun type de réclamation trouvé avec les critères donnés" editable="true" style="text-align: center">
+
+						<!-- Utiliser un filtre sur le composant dataTable 'TypeReclamation' -->
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Recherche: " />
+								<p:inputText id="globalFilter" onkeyup="PF('typeReclamTable').filter()" style="width:150px" placeholder="Saisir un mot clé" />
+							</p:outputPanel>
+						</f:facet>
+
+						<p:ajax event="rowEdit" listener="#{typeReclamMB.onRowEdit}" update="listTypeReclamation" />
+						<p:ajax event="rowEditCancel" listener="#{typeReclamMB.onRowCancel}" update="listTypeReclamation" />
+
+						<p:column headerText="Type" filterBy="#{typeReclamation.type}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{typeReclamation.type}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{typeReclamation.type}" style="width:100%">
+										<f:validateLength maximum="50" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+
+						<p:column headerText="Institution" filterBy="#{typeReclamation.institution.nomInstit}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{typeReclamation.institution.nomInstit}" />
+								</f:facet>
+								<f:facet name="input">
+									<h:selectOneMenu value="#{typeReclamMB.nomInstit}" style="width:100%">
+										<f:selectItems value="#{typeReclamMB.listInstitution}" var="listInstitution" itemValue="#{listInstitution.nomInstit}"
+											itemLabel="#{listInstitution.nomInstit}" />
+									</h:selectOneMenu>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Action" style='text-align: center'>
+							<p:rowEditor />
+							<p:commandButton value="Supprimer" action="#{typeReclamMB.deleteTypeReclamation(typeReclamation)}" update="listTypeReclamation"
+								process="listTypeReclamation" oncomplete="PF('typeReclamTable').filter();">
+								<p:confirm header="Confirmation" message="Voulez-vous supprimer?" icon="ui-icon-alert" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+						<p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+				</p:tab>
+				<!-- Fin liste des types des réclamations -->
+
+				<!-- Début ajout type de réclamation -->
+				<p:tab id="ajoutTypeReclamation" title="Ajouter un type de réclamation">
+					<p:wizard widgetVar="wizTypeReclam" flowListener="#{typeReclamMB.onFlowProcess}" nextLabel="Suivant" backLabel="Précédent">
+						<p:tab id="typeReclamation" title="Type de réclamation">
+							<p:panel header="Details du type de réclamation">
+								<h:panelGrid columns="3" columnClasses="label, value, message">
+									<h:outputText value="Type: *" />
+									<p:inputText id="typeReclam" value="#{typeReclamMB.typeReclamation.type}" required="true" requiredMessage="#{msg['typeReclamation.type']}" label="Type">
+										<f:validateLength maximum="50" />
+									</p:inputText>
+									<p:message for="typeReclam" />
+
+									<p:outputLabel value="Institution: *" />
+									<p:selectOneMenu id="institution" value="#{typeReclamMB.nomInstit}" style="width:150px" required="true"
+										requiredMessage="#{msg['typeReclamation.nomInstit']}" label="Institution">
+										<f:selectItem itemLabel="Choisir une institution" itemValue="" noSelectionOption="true" />
+										<f:selectItems value="#{typeReclamMB.listInstitution}" var="listInstitution" itemValue="#{listInstitution.nomInstit}"
+											itemLabel="#{listInstitution.nomInstit}" />
+										<p:ajax process="@this" partialSubmit="true" />
+									</p:selectOneMenu>
+									<p:message for="institution" />
+								</h:panelGrid>
+							</p:panel>
+						</p:tab>
+
+						<p:tab id="confirm" title="Confirmation">
+							<p:panel header="Confirmation">
+								<h:panelGrid columns="2" columnClasses="label, value">
+									<h:outputText value="Type: " style="font-size: 1.1em;font-weight:bold" />
+									<h:outputText value="#{typeReclamMB.typeReclamation.type}" styleClass="outputLabel" />
+
+									<h:outputText value="Institution: " style="font-size: 1.1em;font-weight:bold" />
+									<h:outputText value="#{typeReclamMB.nomInstit}" styleClass="outputLabel" />
+								</h:panelGrid>
+
+								<p:commandButton id="validerTypeReclamation" immediate="true" value="Valider" actionListener="#{typeReclamMB.addTypeReclamation}"
+									update="listTypeReclamation" process="@this ajoutTypeReclamation" oncomplete="PF('wizTypeReclam').loadStep(PF('wizTypeReclam').cfg.steps[0], true)"
+									onsuccess="PF('typeReclamTable').filter();" />
+							</p:panel>
+						</p:tab>
+					</p:wizard>
+				</p:tab>
+				<!-- Fin ajout type de réclamation -->
+			</p:accordionPanel>
+		</h:form>
+	</ui:define>
+</ui:composition>

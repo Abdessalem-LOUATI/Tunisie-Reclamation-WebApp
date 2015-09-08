@@ -1,0 +1,171 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" template="/vue/accueil.xhtml">
+
+	<ui:define name="title">Institution</ui:define>
+	<ui:define name="content">
+		<h:form id="formInstitution">
+			<p:accordionPanel multiple="true">
+				<!-- Début liste des institutions -->
+				<p:tab title="Liste des institutions">
+					<p:dataTable id="listInstitution" var="instit" value="#{institMB.listInstitution}" rows="10" paginator="true"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="5,10,15" widgetVar="institTable" filteredValue="#{institMB.listInstitutionFiltred}"
+						emptyMessage="Aucun institution trouvé avec les critères donnés" editable="true" style="text-align: center">
+
+						<!-- Utiliser un filtre sur le composant dataTable 'Institution' -->
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Recherche: " />
+								<p:inputText id="globalFilter" onkeyup="PF('institTable').filter()" style="width:150px" placeholder="Saisir un mot clé" />
+							</p:outputPanel>
+						</f:facet>
+
+						<p:ajax event="rowEdit" listener="#{institMB.onRowEdit}" update="listInstitution" />
+						<p:ajax event="rowEditCancel" listener="#{institMB.onRowCancel}" update="listInstitution" />
+
+						<p:column headerText="Nom de l'institution" filterBy="#{instit.nomInstit}">
+							<h:outputText value="#{instit.nomInstit}" />
+						</p:column>
+
+						<p:column headerText="Téléphone" filterBy="#{instit.telInstit}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{instit.telInstit}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{instit.telInstit}" style="width:100%" converter="javax.faces.Integer">
+										<f:validateLength minimum="8" maximum="8" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Fax" filterBy="#{instit.faxInstit}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{instit.faxInstit}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{instit.faxInstit}" style="width:100%" converter="javax.faces.Integer">
+										<f:validateLength minimum="8" maximum="8" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="E-mail" filterBy="#{instit.mailInstit}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{instit.mailInstit}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{instit.mailInstit}" style="width:100%">
+										<f:validateLength maximum="30" />
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Adresse IP serveur" filterBy="#{instit.ipServeur}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{instit.ipServeur}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{instit.ipServeur}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Action" style='width: 5%;text-align: center'>
+							<p:rowEditor />
+							<p:commandButton value="Supprimer" action="#{institMB.deleteInstitution(instit)}" update="listInstitution" process="listInstitution"
+								oncomplete="PF('institTable').filter();">
+								<p:confirm header="Confirmation" message="Voulez-vous supprimer?" icon="ui-icon-alert" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+						<p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+				</p:tab>
+				<!-- Fin liste des institutions -->
+
+				<!-- Début ajout Institution -->
+				<p:tab id="ajoutInstit" title="Ajouter une institution">
+					<p:wizard widgetVar="wizInstit" flowListener="#{adminMB.onFlowProcess}" nextLabel="Suivant" backLabel="Précédent">
+						<p:tab id="institution" title="Institution">
+							<p:panel header="Details de l'institution">
+								<h:panelGrid columns="3" columnClasses="label, value, message">
+									<p:outputLabel value="Nom de l'institution: *" />
+									<p:inputText id="nomInstit" value="#{institMB.institution.nomInstit}" required="true" requiredMessage="#{msg['institution.nomInstit']}"
+										label="Nom de l'institution">
+										<f:validateLength maximum="50" />
+									</p:inputText>
+									<p:message for="nomInstit" />
+
+									<p:outputLabel value="Téléphone de l'institution: *" />
+									<p:inputText id="telInstit" value="#{institMB.institution.telInstit}" required="true" requiredMessage="#{msg['institution.telInstit']}"
+										converter="javax.faces.Integer" label="Téléphone de l'institution">
+										<f:validateLength minimum="8" maximum="8" />
+									</p:inputText>
+									<p:message for="telInstit" />
+
+									<p:outputLabel value="Fax de l'institution: " />
+									<p:inputText id="faxInstit" value="#{institMB.institution.faxInstit}" required="false" converter="javax.faces.Integer" label="Fax de l'institution">
+										<f:validateLength minimum="8" maximum="8" />
+									</p:inputText>
+									<p:message for="faxInstit" />
+
+									<p:outputLabel value="E-mail de l'institution: *" />
+									<p:inputText id="mailInstit" value="#{institMB.institution.mailInstit}" required="true" requiredMessage="#{msg['inscription.email']}"
+										validatorMessage="#{msg['format.email']}" label="E-mail de l'institution">
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+										<f:validateLength maximum="30" />
+									</p:inputText>
+									<p:message for="mailInstit" />
+
+									<p:outputLabel value="Adresse IP du Serveur: " />
+									<p:inputMask id="ipServeur" value="#{institMB.institution.ipServeur}" required="false" label="Adresse IP du Serveur" mask="999.999.999.999"/>
+									<p:message for="ipServeur" />
+
+								</h:panelGrid>
+							</p:panel>
+						</p:tab>
+
+						<p:tab id="confirm" title="Confirmation">
+							<p:panel header="Confirmation">
+								<h:panelGrid id="confirmation" columns="2" columnClasses="label, value">
+
+									<h:outputText value="Nom: " style="font-size: 1.1em;font-weight:bold"/>
+									<h:outputText value="#{institMB.institution.nomInstit}" styleClass="outputLabel" />
+
+									<h:outputText value="Téléphone: " style="font-size: 1.1em;font-weight:bold"/>
+									<h:outputText value="#{institMB.institution.telInstit}" styleClass="outputLabel" />
+
+									<h:outputText value="Fax: " style="font-size: 1.1em;font-weight:bold"/>
+									<h:outputText value="#{institMB.institution.faxInstit}" styleClass="outputLabel" />
+
+									<h:outputText value="E-mail: " style="font-size: 1.1em;font-weight:bold"/>
+									<h:outputText value="#{institMB.institution.mailInstit}" styleClass="outputLabel" />
+
+									<h:outputText value="IP du serveur: " style="font-size: 1.1em;font-weight:bold"/>
+									<h:outputText value="#{institMB.institution.ipServeur}" styleClass="outputLabel" />
+
+								</h:panelGrid>
+
+								<p:commandButton id="valider" immediate="true" value="Valider" actionListener="#{institMB.addInstitution}" update="listInstitution"
+									process="@this ajoutInstit" oncomplete="PF('wizInstit').loadStep (PF('wizInstit').cfg.steps [0], true)" onsuccess="PF('institTable').filter();" />
+							</p:panel>
+						</p:tab>
+					</p:wizard>
+				</p:tab>
+				<!-- Fin ajout Institution -->
+			</p:accordionPanel>
+		</h:form>
+	</ui:define>
+</ui:composition>

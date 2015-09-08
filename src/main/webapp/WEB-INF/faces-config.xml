@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<faces-config version="2.2"
+    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
+
+    <!-- JSF Primefaces and spring are integrated (pour gerer la communication entre la partie JSF(présentation) et Spring(Métier) -->
+    <application>
+        <el-resolver>
+            org.springframework.web.jsf.el.SpringBeanFacesELResolver
+        </el-resolver>
+    </application>
+    
+    <!-- Configuration of navigation rules -->
+    <!-- <navigation-rule>
+        <from-view-id>/pages/index.xhtml</from-view-id>
+        <navigation-case>
+                <from-outcome>success</from-outcome>
+                <to-view-id>/f/ajouterExercice.xhtml</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>error</from-outcome>
+            <to-view-id>/pages/error.xhtml</to-view-id>
+        </navigation-case>
+    </navigation-rule> -->
+    
+</faces-config>

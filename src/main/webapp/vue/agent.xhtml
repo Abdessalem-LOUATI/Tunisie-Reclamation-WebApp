@@ -1,0 +1,216 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" template="/vue/accueil.xhtml">
+
+	<ui:define name="title">Agent</ui:define>
+	<ui:define name="content">
+		<h:form id="formAgent">
+			<p:accordionPanel multiple="true">
+				<!-- Début liste des agents -->
+				<p:tab title="Liste des agents">
+					<p:dataTable id="listAgent" var="agent" value="#{agentMB.listAgent}" rows="10" paginator="true"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="5,10,15" widgetVar="agentTable" filteredValue="#{agentMB.listAgentFilred}" emptyMessage="Aucun agent trouvé avec les critères donnés"
+						editable="true" style="text-align: center">
+
+						<!-- Utiliser un filtre sur le composant dataTable 'Agent' -->
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Recherche: " />
+								<p:inputText id="globalFilter" onkeyup="PF('agentTable').filter()" style="width:150px" placeholder="Saisir un mot clé" />
+							</p:outputPanel>
+						</f:facet>
+
+						<p:ajax event="rowEdit" listener="#{agentMB.onRowEdit}" update="listAgent" />
+						<p:ajax event="rowEditCancel" listener="#{agentMB.onRowCancel}" update="listAgent" />
+
+						<p:column headerText="Nom" filterBy="#{agent.nom}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{agent.nom}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{agent.nom}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Prénom" filterBy="#{agent.prenom}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{agent.prenom}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{agent.prenom}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="E-mail" filterBy="#{agent.email}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{agent.email}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{agent.email}" style="width:100%">
+										<f:validateLength maximum="30" />
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Institution" filterBy="#{agent.institution.nomInstit}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{agent.institution.nomInstit}" />
+								</f:facet>
+								<f:facet name="input">
+									<h:selectOneMenu value="#{agentMB.nomInstit}" style="width:100%">
+										<f:selectItems value="#{agentMB.listInstitution}" var="listInstitution" itemValue="#{listInstitution.nomInstit}"
+											itemLabel="#{listInstitution.nomInstit}" />
+									</h:selectOneMenu>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Login" filterBy="#{agent.login}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{agent.login}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{agent.login}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Mot de passe">
+							<p:cellEditor>
+								<f:facet name="output">
+									<p:password value="#{agent.motPass}" redisplay="true" readonly="true" />
+								</f:facet>
+								<f:facet name="input">
+									<p:password value="#{agent.motPass}" redisplay="true" feedback="true" promptLabel="S'il vous plaît saisir un mot de passe" weakLabel="Faible"
+										goodLabel="Bon" strongLabel="Fort">
+										<f:validateLength maximum="15" />
+									</p:password>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Action" style='width: 5%;text-align: center'>
+							<p:rowEditor />
+							<p:commandButton value="Supprimer" action="#{agentMB.deleteAgent(agent)}" update="listAgent" process="listAgent" oncomplete="PF('agentTable').filter();">
+								<p:confirm header="Confirmation" message="Voulez-vous supprimer?" icon="ui-icon-alert" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+						<p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+				</p:tab>
+				<!-- Fin liste des agents -->
+
+				<!-- Début ajout agent -->
+				<p:tab id="ajoutAgent" title="Ajouter un agent">
+					<p:wizard widgetVar="wizAgent" flowListener="#{agentMB.onFlowProcess}" nextLabel="Suivant" backLabel="Précédent">
+						<p:tab id="personnel" title="Peronnel">
+							<p:panel header="Details Personnel">
+								<h:panelGrid columns="3" columnClasses="label, value, message">
+									<h:outputText value="Nom: " />
+									<p:inputText id="nomAgent" value="#{agentMB.agent.nom}" required="false" label="Nom">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+									<p:message for="nomAgent" />
+
+									<h:outputText value="Prénom: *" />
+									<p:inputText id="prenomAgent" value="#{agentMB.agent.prenom}" required="true" label="Prénom" requiredMessage="#{msg['inscription.prenom']}">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+									<p:message for="prenomAgent" />
+
+									<h:outputText value="E-mail: *" />
+									<p:inputText id="emailAgent" value="#{agentMB.agent.email}" required="true" label="E-mail" requiredMessage="#{msg['inscription.email']}"
+										validatorMessage="#{msg['format.email']}">
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+										<f:validateLength maximum="30" />
+									</p:inputText>
+									<p:message for="emailAgent" />
+
+								</h:panelGrid>
+							</p:panel>
+						</p:tab>
+
+						<p:tab id="compte" title="Compte">
+							<p:panel header="Details Compte">
+								<h:panelGrid columns="3" columnClasses="label, value, message">
+
+									<h:outputText value="Login: *" />
+									<p:inputText id="loginAgent" value="#{agentMB.agent.login}" required="true" requiredMessage="#{msg['inscription.login']}" label="Login">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+									<p:message for="loginAgent" />
+
+									<h:outputText value="Mot de passe: *" />
+									<p:password id="motPassAgent" value="#{agentMB.agent.motPass}" required="true" requiredMessage="#{msg['inscription.motPass']}" label="Mot de passe"
+										feedback="true" promptLabel="S'il vous plaît saisir un mot de passe" weakLabel="Faible" goodLabel="Bon" strongLabel="Fort">
+										<f:validateLength maximum="15" />
+									</p:password>
+									<p:message for="motPassAgent" />
+
+									<p:outputLabel value="Institution: " />
+									<p:selectOneMenu id="institution" value="#{agentMB.nomInstit}" style="width:150px" required="true" label="Institution"
+										requiredMessage="#{msg['inscription.nomInstit']}">
+										<f:selectItem itemLabel="Choisir une institution" itemValue="" noSelectionOption="true" />
+										<f:selectItems value="#{agentMB.listInstitution}" var="listInstitution" itemValue="#{listInstitution.nomInstit}"
+											itemLabel="#{listInstitution.nomInstit}" />
+										<p:ajax process="@this" partialSubmit="true" />
+									</p:selectOneMenu>
+									<p:message for="institution" />
+
+								</h:panelGrid>
+							</p:panel>
+						</p:tab>
+
+						<p:tab id="confirm" title="Confirmation">
+							<p:panel header="Confirmation">
+								<h:panelGrid id="confirmation" columns="1" columnClasses="grid">
+									<h:panelGrid columns="2" columnClasses="label, value">
+										<h:outputText value="Nom: " style="font-size: 1.1em;font-weight:bold" />
+										<h:outputText value="#{agentMB.agent.nom}" styleClass="outputLabel" />
+
+										<h:outputText value="Prénom: " style="font-size: 1.1em;font-weight:bold" />
+										<h:outputText value="#{agentMB.agent.prenom}" styleClass="outputLabel" />
+
+										<h:outputText value="E-mail: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{agentMB.agent.email}" styleClass="outputLabel" />
+									
+										<h:outputText value="Login: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{agentMB.agent.login}" styleClass="outputLabel" />
+
+										<h:outputText value="Mot de passe: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{agentMB.agent.motPass}" styleClass="outputLabel" />
+
+										<h:outputText value="Institution: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{agentMB.nomInstit}" styleClass="outputLabel" />
+									</h:panelGrid>
+								</h:panelGrid>
+
+								<p:commandButton id="validerAgent" immediate="true" value="Valider" actionListener="#{agentMB.addAgent}" update="listAgent"
+									process="@this ajoutAgent" oncomplete="PF('wizAgent').loadStep(PF('wizAgent').cfg.steps[0], true)" onsuccess="PF('agentTable').filter();" />
+							</p:panel>
+						</p:tab>
+					</p:wizard>
+				</p:tab>
+				<!-- Fin ajout agent -->
+			</p:accordionPanel>
+		</h:form>
+	</ui:define>
+</ui:composition>

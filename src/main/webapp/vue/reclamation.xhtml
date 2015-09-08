@@ -1,0 +1,149 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" template="/vue/accueil.xhtml">
+
+	<ui:define name="title">Réclamation</ui:define>
+	<ui:define name="content">
+		<h:form id="formReclamation">
+			<p:accordionPanel>
+				<!-- Début liste des réclamations -->
+				<p:tab title="Liste des réclamations">
+					<p:dataTable id="listReclamation" var="reclamation" value="#{reclamationMB.listReclamation}" rows="10" paginator="true"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="5,10,15" widgetVar="reclamationTable" filteredValue="#{reclamationMB.listReclamationFiltred}"
+						emptyMessage="Aucun réclamation trouvé avec les critères donnés" editable="true" style="text-align: center">
+
+						<!-- Utiliser un filtre sur le composant dataTable 'Réclamation' -->
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Recherche: " />
+								<p:inputText id="globalFilter" onkeyup="PF('reclamationTable').filter()" style="width:150px" placeholder="Saisir un mot clé" />
+							</p:outputPanel>
+						</f:facet>
+
+						<p:ajax event="rowEdit" listener="#{reclamationMB.onRowEdit}" update="listReclamation" />
+						<p:ajax event="rowEditCancel" listener="#{reclamationMB.onRowCancel}" update="listReclamation" />
+
+						<p:column headerText="Référence" filterBy="#{reclamation.refReclam}">
+							<h:outputText value="#{reclamation.refReclam}" />
+						</p:column>
+
+						<p:column headerText="Etat" filterBy="#{reclamation.etatReclam}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<p:selectBooleanCheckbox value="#{reclamation.etatReclam}" itemLabel="Résolu" disabled="true" />
+								</f:facet>
+								<f:facet name="input">
+									<p:selectBooleanCheckbox value="#{reclamation.etatReclam}" />
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Dispatcher" filterBy="#{reclamation.etatEnvoi}">
+							<p:selectBooleanCheckbox value="#{reclamation.etatEnvoi}" itemLabel="Réclamation dispatcher !" disabled="true" />
+						</p:column>
+
+						<p:column headerText="Longitude" filterBy="#{reclamation.longitude}">
+							<h:outputText value="#{reclamation.longitude}" />
+						</p:column>
+
+						<p:column headerText="Latitude" filterBy="#{reclamation.latitude}">
+							<h:outputText value="#{reclamation.latitude}" />
+						</p:column>
+
+						<p:column headerText="Adresse de l'anomalie" filterBy="#{reclamation.adresseAnomalie}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{reclamation.adresseAnomalie}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{reclamation.adresseAnomalie}" style="width:100%">
+										<f:validateLength maximum="50" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Autres Précisions" filterBy="#{reclamation.autresPrecisions}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{reclamation.autresPrecisions}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{reclamation.autresPrecisions}" style="width:100%">
+										<f:validateLength maximum="50" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Date" filterBy="#{reclamation.dateReclam}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{reclamation.dateReclam}">
+										<f:convertDateTime pattern="dd-MM-yyyy" />
+									</h:outputText>
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{reclamation.dateReclam}" style="width:100%">
+										<f:convertDateTime pattern="dd-MM-yyyy" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="E-mail du client">
+							<h:outputText value="#{reclamation.client.email}" />
+						</p:column>
+
+						<p:column headerText="Type">
+							<h:outputText value="#{reclamation.typeReclamation.type}" />
+						</p:column>
+
+						<p:column headerText="Maps" style="width:32px;text-align: center">
+							<p:commandButton update=":#{p:component('reclamDetail')}" oncomplete="PF('reclamDialog').show()" icon="ui-icon-search" title="View" immediate="true">
+								<f:setPropertyActionListener value="#{reclamation}" target="#{reclamationMB.selectedReclam}" />
+							</p:commandButton>
+						</p:column>
+
+						<p:column headerText="Action" style='text-align:center'>
+							<p:rowEditor />
+							<p:commandButton value="Supprimer" action="#{reclamationMB.deleteReclamation(reclamation)}" update="listReclamation" process="listReclamation"
+								oncomplete="PF('reclamationTable').filter();">
+								<p:confirm header="Confirmation" message="Voulez-vous supprimer?" icon="ui-icon-alert" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+
+					<p:poll interval="20" listener="#{reclamationMB.refresh}" update=":#{p:component('listReclamation')}" />
+					<!-- Pour afficher la position de l'anomalie sur le google Maps -->
+					<p:dialog header="Afficher la posititon de l'anomalie sur Google Maps" widgetVar="reclamDialog" modal="true" showEffect="fade" hideEffect="fade"
+						resizable="false" appendTo="@(body)" style="text-align:center;">
+						<p:outputPanel id="reclamDetail">
+							<p:panelGrid columns="2" rendered="#{not empty reclamationMB.selectedReclam}" columnClasses="label,value">
+								<f:facet name="header">
+									<p:gmap center="#{reclamationMB.center}" zoom="13" type="HYBRID" style="width:600px;height:450px" model="#{reclamationMB.simpleModel}" />
+								</f:facet>
+
+								<h:outputText value="Date " style="font-weight:bold;" />
+								<h:outputText value="#{reclamationMB.selectedReclam.dateReclam}" />
+
+								<h:outputText value="Longitude " style="font-weight:bold;" />
+								<h:outputText value="#{reclamationMB.selectedReclam.longitude}" />
+
+								<h:outputText value="Latitude " style="font-weight:bold;" />
+								<h:outputText value="#{reclamationMB.selectedReclam.latitude}" />
+							</p:panelGrid>
+						</p:outputPanel>
+					</p:dialog>
+					<!-- Fin affichage du google maps -->
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+						<p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+				</p:tab>
+
+				<!-- Fin liste des réclamations -->
+			</p:accordionPanel>
+		</h:form>
+	</ui:define>
+</ui:composition>

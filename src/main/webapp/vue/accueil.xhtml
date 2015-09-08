@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+
+<f:view contentType="text/html">
+	<h:head>
+
+		<!-- Pour traduire le calendrier en français (par défaut il est en anglais) -->
+		<script type="text/javascript">
+			PrimeFaces.locales['fr'] = {
+				closeText : 'Fermer',
+				prevText : 'Précédent',
+				nextText : 'Suivant',
+				currentText : 'Aujourd\'hui',
+				monthNames : [ 'Janvier', 'Février', 'Mars', 'Avril', 'Mai',
+						'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre',
+						'Novembre', 'Décembre' ],
+				monthNamesShort : [ 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun',
+						'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc' ],
+				dayNames : [ 'Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi',
+						'Vendredi', 'Samedi' ],
+				dayNamesShort : [ 'Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven',
+						'Sam' ],
+				dayNamesMin : [ 'Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa' ],
+				weekHeader : 'Semaine',
+				firstDay : 1,
+				isRTL : false,
+				showMonthAfterYear : false,
+				yearSuffix : '',
+				timeOnlyTitle : 'Choisir l\'heure',
+				timeText : 'Heure',
+				hourText : 'Heures',
+				minuteText : 'Minutes',
+				secondText : 'Secondes',
+				currentText : 'Maintenant',
+				ampm : false,
+				month : 'Mois',
+				week : 'Semaine',
+				day : 'Jour',
+				allDayText : 'Toute la journée'
+			};
+		</script>
+
+		<script src="http://maps.google.com/maps/api/js?sensor=true|false" type="text/javascript"></script>
+
+		<f:facet name="first">
+			<meta http-equiv="X-UA-Compatible" content="EmulateIE8" />
+			<meta content='text/html; charset=UTF-8' http-equiv="Content-Type" />
+			<title><ui:insert name="title">Accueil - Gestion des réclamations</ui:insert></title>
+		</f:facet>
+
+		<!-- <link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/default.css" />
+		<link type="text/css" rel="stylesheet" href="#{request.contextPath}/css/syntaxhighlighter/syntaxhighlighter.css" /> -->
+		<link type="text/css" rel="stylesheet" href="../css/style2.css"  />
+		 <link rel="icon" type="image/png" href="../images/ic_launcher.png" />
+		<style type="text/css">
+.ui-layout-north {
+	z-index: 20 !important;
+	overflow: visible !important;;
+}
+
+.ui-layout-north .ui-layout-unit-content {
+	overflow: visible !important;
+}
+
+/* pour corriger le problème de l'alignement ('center') des datatables  */
+.ui-datatable table, .ui-datatable-resizable table {
+	table-layout: auto !important;
+}
+
+.ui-datatable-scrollable table {
+	table-layout: fixed !important;
+}
+</style>
+
+		<f:loadBundle basename="bundle.messages" var="msg" />
+
+	</h:head>
+
+	<f:event listener="#{authenticatMB.isAuthenticated}" type="preRenderView" />
+
+	<h:body>
+
+		<p:layout fullPage="true">
+
+			<p:layoutUnit id="top" position="north" size="50" styleClass="myLayoutStyleClass">
+
+				<h:form id="formAccueil">
+					<p:menubar styleClass="menuStyle">
+						<p:submenu label="Utilisateur" icon="ui-icon-document" rendered="#{not empty accueilMB.admin}">
+							<p:menuitem value="Gestion des administrateurs" icon="ui-icon-contact" url="administrateur.xhtml" />
+							<p:menuitem value="Gestion des agents" url="agent.xhtml" />
+							<p:menuitem value="Gestion des clients" url="client.xhtml" />
+						</p:submenu>
+
+						<p:submenu label="Institution" icon="ui-icon-pencil">
+							<p:menuitem value="Gestion des institutions" url="institution.xhtml" icon="ui-icon-arrowreturnthick-1-w" rendered="#{not empty accueilMB.admin}"></p:menuitem>
+							<p:menuitem value="Gestion des types de réclamation" url="typeReclamation.xhtml" icon="ui-icon-arrowreturnthick-1-e"></p:menuitem>
+						</p:submenu>
+
+						<p:submenu label="Réclamation" icon="ui-icon-help">
+							<p:menuitem value="List des réclamations" url="reclamation.xhtml" />
+							<p:menuitem value="Statistique" url="statistique.xhtml" />
+						</p:submenu>
+						
+						<p:submenu label="Configuration" rendered="#{not empty accueilMB.admin}">
+							<p:menuitem value="configuration du serveur" url="configuration.xhtml"  />
+						</p:submenu>
+						
+						<f:facet name="options">
+							<h:outputText style="margin-right:10px;font-weight:bold" value="Vous êtes connecter #{sessionScope['email']}" />
+							<p:commandButton type="submit" value="Déconnecter" action="#{accueilMB.logout}" icon="ui-icon-extlink" immediate="true" />
+						</f:facet>
+					</p:menubar>
+				</h:form>
+			</p:layoutUnit>
+
+			<p:layoutUnit id="bottom" position="south" size="50" style="padding:6px 0px 7px 0px;font-weight: bold; text-align: center" styleClass="myLayoutStyleClass">
+				<p:panel name="header" >  
+                   Copyright &copy; 2015 &ndash; Développé par Abdessalem LOUATI &ndash; SiFAST
+                </p:panel>  
+				
+			</p:layoutUnit>
+
+			<p:layoutUnit id="left" position="west" size="250" resizable="true" closable="true" collapsible="true" header="Option" minSize="250" maxSize="250">
+				<p:accordionPanel>
+					<p:tab title="Calendrier">
+						<br />
+						<p:calendar mode="inline" navigator="none" locale="fr" />
+						<br />
+					</p:tab>
+					
+				</p:accordionPanel>
+				<center>
+					<h:graphicImage value="/images/ic_launcher.png" />
+				</center>
+			</p:layoutUnit>
+
+			<p:layoutUnit id="center" position="center" styleClass="layoutContent">
+				<ui:insert name="content"></ui:insert>
+			</p:layoutUnit>
+
+		</p:layout>
+	</h:body>
+</f:view>
+</html>

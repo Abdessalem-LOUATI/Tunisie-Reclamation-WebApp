@@ -1,0 +1,188 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui" xmlns:ui="http://java.sun.com/jsf/facelets" template="/vue/accueil.xhtml">
+
+	<ui:define name="title">Administrateur</ui:define>
+	<ui:define name="content">
+		<h:form id="formAdmin">
+			<p:accordionPanel multiple="true">
+				<!-- Début liste des administrateurs -->
+				<p:tab title="Liste des administrateurs">
+
+					<p:dataTable id="listAdmin" var="admin" value="#{adminMB.listAdmin}" rows="10" paginator="true"
+						paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="5,10,15" widgetVar="adminTable" filteredValue="#{adminMB.listAdminFiltred}"
+						emptyMessage="Aucun administrateur trouvé avec les critères donnés" editable="true" style="text-align: center">
+						<!-- Utiliser un filtre sur le composant dataTable 'Administrateur' -->
+						<f:facet name="header">
+							<p:outputPanel>
+								<h:outputText value="Recherche: " />
+								<p:inputText id="globalFilter" onkeyup="PF('adminTable').filter()" style="width:150px" placeholder="Saisir un mot clé" />
+							</p:outputPanel>
+						</f:facet>
+
+						<p:ajax event="rowEdit" listener="#{adminMB.onRowEdit}" update="listAdmin" />
+						<p:ajax event="rowEditCancel" listener="#{adminMB.onRowCancel}" update="listAdmin" />
+
+						<p:column headerText="Nom" filterBy="#{admin.nom}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{admin.nom}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{admin.nom}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Prénom" filterBy="#{admin.prenom}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{admin.prenom}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{admin.prenom}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="E-mail" filterBy="#{admin.email}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{admin.email}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{admin.email}" style="width:100%">
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+										<f:validateLength maximum="30" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Login" filterBy="#{admin.login}">
+							<p:cellEditor>
+								<f:facet name="output">
+									<h:outputText value="#{admin.login}" />
+								</f:facet>
+								<f:facet name="input">
+									<p:inputText value="#{admin.login}" style="width:100%">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Mot de passe">
+							<p:cellEditor>
+								<f:facet name="output">
+									<p:password value="#{admin.motPass}" redisplay="true" readonly="true" />
+								</f:facet>
+								<f:facet name="input">
+									<p:password value="#{admin.motPass}" redisplay="true" feedback="true" promptLabel="S'il vous plaît saisir un mot de passe" weakLabel="Faible"
+										goodLabel="Bon" strongLabel="Fort">
+										<f:validateLength maximum="15" />
+									</p:password>
+								</f:facet>
+							</p:cellEditor>
+						</p:column>
+
+						<p:column headerText="Action" style='width: 5%;text-align: center'>
+							<p:rowEditor />
+							<p:commandButton value="Supprimer" action="#{adminMB.deleteAdmin(admin)}" update="listAdmin" process="listAdmin" oncomplete="PF('adminTable').filter();">
+								<p:confirm header="Confirmation" message="Voulez-vous supprimer?" icon="ui-icon-alert" />
+							</p:commandButton>
+						</p:column>
+					</p:dataTable>
+					<p:confirmDialog global="true" showEffect="fade" hideEffect="explode">
+						<p:commandButton value="Oui" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+						<p:commandButton value="Non" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+					</p:confirmDialog>
+				</p:tab>
+				<!-- Fin liste des administrateurs -->
+
+				<!-- Début ajout administrateur -->
+				<p:tab id="ajoutAdmin" title="Ajouter un administrateur">
+					<p:wizard widgetVar="wizAdmin" flowListener="#{adminMB.onFlowProcess}" nextLabel="Suivant" backLabel="Précédent">
+						<p:tab id="personnel" title="Peronnel">
+							<p:panel header="Details Personnel">
+								<h:panelGrid columns="3" columnClasses="label, value, message">
+									<h:outputText value="Nom: " />
+									<p:inputText id="nomAdmin" value="#{adminMB.admin.nom}" required="false" label="Nom">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+									<p:message for="nomAdmin" />
+
+									<h:outputText value="Prénom: *" />
+									<p:inputText id="prenomAdmin" value="#{adminMB.admin.prenom}" required="true" label="Prénom" requiredMessage="#{msg['inscription.prenom']}">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+									<p:message for="prenomAdmin" />
+
+									<h:outputText value="E-mail: *" />
+									<p:inputText id="emailAdmin" value="#{adminMB.admin.email}" required="true" label="E-mail" requiredMessage="#{msg['inscription.email']}"
+										validatorMessage="#{msg['format.email']}">
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+										<f:validateLength maximum="30" />
+									</p:inputText>
+									<p:message for="emailAdmin" />
+
+								</h:panelGrid>
+							</p:panel>
+						</p:tab>
+
+						<p:tab id="compte" title="Compte">
+							<p:panel header="Details Compte">
+								<h:panelGrid columns="3" columnClasses="label, value, message">
+
+									<h:outputText value="Login: *" />
+									<p:inputText id="loginAdmin" value="#{adminMB.admin.login}" required="true" requiredMessage="#{msg['inscription.login']}" label="Login">
+										<f:validateLength maximum="15" />
+									</p:inputText>
+									<p:message for="loginAdmin" />
+
+									<h:outputText value="Mot de passe: *" />
+									<p:password id="motPassAdmin" value="#{adminMB.admin.motPass}" required="true" requiredMessage="#{msg['inscription.motPass']}" label="Mot de passe"
+										feedback="true" promptLabel="S'il vous plaît saisir un mot de passe" weakLabel="Faible" goodLabel="Bon" strongLabel="Fort">
+										<f:validateLength maximum="15" />
+									</p:password>
+									<p:message for="motPassAdmin" />
+								</h:panelGrid>
+							</p:panel>
+						</p:tab>
+
+						<p:tab id="confirm" title="Confirmation">
+							<p:panel header="Confirmation">
+								<h:panelGrid id="confirmation" columns="1" columnClasses="grid">
+									<h:panelGrid columns="2" columnClasses="label, value">
+										<h:outputText value="Nom: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{adminMB.admin.nom}" styleClass="outputLabel" />
+
+										<h:outputText value="Prénom: "  style="font-size: 1.1em;font-weight:bold" />
+										<h:outputText value="#{adminMB.admin.prenom}" styleClass="outputLabel" />
+
+										<h:outputText value="E-mail: " style="font-size: 1.1em;font-weight:bold" />
+										<h:outputText value="#{adminMB.admin.email}" styleClass="outputLabel" />
+									
+										<h:outputText value="Login: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{adminMB.admin.login}" styleClass="outputLabel" />
+
+										<h:outputText value="Mot de passe: " style="font-size: 1.1em;font-weight:bold"/>
+										<h:outputText value="#{adminMB.admin.motPass}" styleClass="outputLabel" />
+									</h:panelGrid>
+								</h:panelGrid>
+
+								<p:commandButton id="valider" immediate="true" value="Valider" actionListener="#{adminMB.addAdmin}" update="listAdmin" process="@this ajoutAdmin"
+									oncomplete="PF('wizAdmin').loadStep (PF('wizAdmin').cfg.steps [0], true)" onsuccess="PF('adminTable').filter();" />
+							</p:panel>
+						</p:tab>
+					</p:wizard>
+				</p:tab>
+				<!-- Fin ajout administrateur -->
+			</p:accordionPanel>
+		</h:form>
+	</ui:define>
+</ui:composition>

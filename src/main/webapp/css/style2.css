@@ -1,0 +1,17 @@
+.myLayoutStyleClass .ui-layout-unit-content {
+	background: #004e8e;
+}
+
+.layoutContent .ui-layout-unit-content {
+	background: #f0fbff;
+}
+
+.menuStyle .ui-menubar,.ui-menu-child,.ui-menu {
+	background: #9bcece !important;
+}
+
+.outputStyle
+{
+	font-size: 1.3em;
+	font-weight:bold;
+}

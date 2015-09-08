@@ -1,0 +1,25 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>Suivre l'état de la réclamation</title>
+</h:head>
+
+<h:body>
+	<h:form id="formEtatReclamation">
+		<p:remoteCommand name="testAutoRun" oncomplete="PF('etatReclamDialog').show()" autoRun="true" />
+
+		<p:dialog closable="false" position="center" header="Suivre l'état de votre réclamation" widgetVar="etatReclamDialog" modal="true" showEffect="fade"
+			hideEffect="fade" resizable="false" appendTo="@(body)" style="text-align:center;" height="110px" width="30%" draggable="false">
+			<p:outputPanel id="etatReclamDetail">
+				<p:inputText id="refReclam" value="#{etatReclamMB.refReclamation}" placeholder="Saisir la référence de la réclamation"
+					style="font-weight:bold;width:70%;height:20%;margin-top:10px" />
+				<br> </br>
+				<p:commandButton actionListener="#{etatReclamMB.verifEtatReclamation}" value="Valider" partialSubmit="true" process="@this etatReclamDetail"
+					update="etatReclam" />
+				<br> </br>
+				<p:separator />
+				<h:outputText id="etatReclam" value="#{etatReclamMB.etatReclamation}" style="font-weight:bold;" />
+			</p:outputPanel>
+		</p:dialog>
+	</h:form>
+</h:body>
+</html>
